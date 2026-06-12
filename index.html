@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DES Simulator Pro | Edukasi Kriptografi</title>
+    
+    <!-- Google Fonts untuk tipografi modern (Inter untuk teks, JetBrains Mono untuk data) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- Link ke stylesheet utama -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Background animasi abstrak -->
+    <div class="bg-animated">
+        <div class="glow glow-1"></div>
+        <div class="glow glow-2"></div>
+        <div class="glow glow-3"></div>
+    </div>
+
+    <div class="app-container">
+        <!-- HEADER -->
+        <header class="app-header glass-panel">
+            <div class="header-content">
+                <h1>DES <span class="accent-text">Simulator</span></h1>
+                <p>Simulasi Interaktif Data Encryption Standard Step-by-Step</p>
+            </div>
+            <div class="header-badges">
+                <span class="badge">Kriptografi</span>
+                <span class="badge">FIPS 46-3</span>
+            </div>
+        </header>
+
+        <!-- INPUT SECTION -->
+        <main class="main-content">
+            <section class="panel input-panel glass-panel">
+                <div class="panel-header">
+                    <h2>Konfigurasi Enkripsi / Dekripsi</h2>
+                </div>
+                
+                <div class="input-grid">
+                    <!-- Format & Mode Selectors -->
+                    <div class="control-group">
+                        <label>Format Input</label>
+                        <div class="radio-group" id="formatSelector">
+                            <input type="radio" id="formatHex" name="format" value="hex" checked>
+                            <label for="formatHex">Hexadecimal</label>
+                            
+                            <input type="radio" id="formatBin" name="format" value="binary">
+                            <label for="formatBin">Binary</label>
+                        </div>
+                    </div>
+
+                    <div class="control-group">
+                        <label>Mode Operasi</label>
+                        <div class="radio-group" id="modeSelector">
+                            <input type="radio" id="modeEncrypt" name="mode" value="encrypt" checked>
+                            <label for="modeEncrypt">Encrypt</label>
+                            
+                            <input type="radio" id="modeDecrypt" name="mode" value="decrypt">
+                            <label for="modeDecrypt">Decrypt</label>
+                        </div>
+                    </div>
+
+                    <!-- Input Fields -->
+                    <div class="control-group full-width">
+                        <label for="keyInput">Secret Key (64-bit)</label>
+                        <div class="input-wrapper">
+                            <input type="text" id="keyInput" placeholder="Masukkan 16 karakter Hex..." value="133457799BBCDFF1" autocomplete="off" spellcheck="false">
+                            <span class="length-indicator" id="keyLength">16/16</span>
+                        </div>
+                        <small class="helper-text">Contoh Hex: 133457799BBCDFF1</small>
+                    </div>
+
+                    <div class="control-group full-width">
+                        <label for="dataInput">Data (Plaintext/Ciphertext 64-bit)</label>
+                        <div class="input-wrapper">
+                            <input type="text" id="dataInput" placeholder="Masukkan 16 karakter Hex..." value="0123456789ABCDEF" autocomplete="off" spellcheck="false">
+                            <span class="length-indicator" id="dataLength">16/16</span>
+                        </div>
+                        <small class="helper-text">Contoh Hex: 0123456789ABCDEF</small>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="action-buttons">
+                    <button id="btnRun" class="btn btn-primary">
+                        <span class="icon">▶</span> Eksekusi Algoritma
+                    </button>
+                    <button id="btnRoundTrip" class="btn btn-secondary">
+                        <span class="icon">🔁</span> Round-Trip Test
+                    </button>
+                    <button id="btnReset" class="btn btn-danger">
+                        <span class="icon">⟲</span> Reset
+                    </button>
+                </div>
+                
+                <div id="errorMessage" class="error-message hidden"></div>
+            </section>
+
+            <!-- RESULTS SECTION (Awalnya Sembunyi) -->
+            <section id="resultsSection" class="results-section hidden">
+                
+                <!-- Output Akhir -->
+                <div class="panel glass-panel final-output-panel">
+                    <div class="panel-header">
+                        <h2>Hasil Akhir</h2>
+                    </div>
+                    <div class="output-grid">
+                        <div class="output-box">
+                            <h3>Hexadecimal</h3>
+                            <div class="code-block copyable" id="outputHex" title="Klik untuk copy"></div>
+                        </div>
+                        <div class="output-box">
+                            <h3>Binary</h3>
+                            <div class="code-block copyable" id="outputBin" title="Klik untuk copy"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Navigasi Tab Visualisasi -->
+                <div class="tabs-container glass-panel">
+                    <div class="tabs-header">
+                        <button class="tab-btn active" data-target="tab-keyschedule">Key Schedule</button>
+                        <button class="tab-btn" data-target="tab-rounds">Feistel Rounds</button>
+                        <button class="tab-btn" data-target="tab-sbox">S-Box Details</button>
+                    </div>
+                    
+                    <div class="tabs-body">
+                        <!-- TAB: Key Schedule -->
+                        <div id="tab-keyschedule" class="tab-content active">
+                            <div class="explanation-box">
+                                <p>Proses menghasilkan 16 subkey (48-bit) dari kunci utama (64-bit). Melalui PC-1, split C0/D0, left shift, dan PC-2.</p>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Round</th>
+                                            <th>Shift</th>
+                                            <th>Register C (28-bit)</th>
+                                            <th>Register D (28-bit)</th>
+                                            <th>Subkey K (48-bit)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="keyScheduleBody">
+                                        <!-- Diisi oleh JavaScript -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- TAB: Feistel Rounds -->
+                        <div id="tab-rounds" class="tab-content">
+                            <div class="explanation-box">
+                                <p>Detail 16 putaran fungsi Feistel. R<sub>i</sub> = L<sub>i-1</sub> ⊕ f(R<sub>i-1</sub>, K<sub>i</sub>) dan L<sub>i</sub> = R<sub>i-1</sub></p>
+                            </div>
+                            <div class="accordion" id="roundsAccordion">
+                                <!-- Diisi oleh JavaScript -->
+                            </div>
+                        </div>
+
+                        <!-- TAB: S-Box Details -->
+                        <div id="tab-sbox" class="tab-content">
+                            <div class="explanation-box">
+                                <p>Substitusi non-linear inti dari DES. Memetakan 48-bit (8 blok x 6-bit) menjadi 32-bit (8 blok x 4-bit).</p>
+                            </div>
+                            <div class="round-selector">
+                                <label for="sboxRoundSelect">Pilih Round:</label>
+                                <select id="sboxRoundSelect" class="modern-select">
+                                    <!-- Options 1-16 -->
+                                </select>
+                            </div>
+                            <div class="sbox-grid" id="sboxDetailsContainer">
+                                <!-- Diisi oleh JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </section>
+        </main>
+    </div>
+
+    <!-- Pemuatan Modul-Modul Logika DES -->
+    <script src="js/constants.js"></script>
+    <script src="js/converter.js"></script>
+    <script src="js/permutation.js"></script>
+    <script src="js/keySchedule.js"></script>
+    <script src="js/sbox.js"></script>
+    <script src="js/feistel.js"></script>
+    <script src="js/des.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
