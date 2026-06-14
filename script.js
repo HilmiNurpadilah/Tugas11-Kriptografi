@@ -167,6 +167,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // 3. Render Visualisasi Data lewat ui.js
         renderKeySchedule(desData.keySchedule);
+        renderKeyScheduleDetails(desData.keySchedule);  // Tambahan: Detail accordion per round
         renderRounds(desData.rounds);
         initSBoxVisualization(desData.rounds);
         

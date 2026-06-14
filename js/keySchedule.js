@@ -117,6 +117,7 @@ function generateSubkeys(key64bit) {
 
     // Return semua data untuk visualisasi
     return {
+        originalKey: key64bit, // Tambahan: Kunci asli untuk visualisasi
         subkeys: subkeys,    // Array of 16 subkeys (48-bit each)
         rounds: rounds,      // Array of 16 round details
         pc1Result: pc1Result, // 56-bit PC-1 result

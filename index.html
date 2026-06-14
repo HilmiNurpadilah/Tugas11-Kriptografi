@@ -26,12 +26,14 @@
         <!-- HEADER -->
         <header class="app-header glass-panel">
             <div class="header-content">
-                <h1>DES <span class="accent-text">Simulator</span></h1>
-                <p>Simulasi Interaktif Data Encryption Standard Step-by-Step</p>
+                <h1>🔐 DES <span class="accent-text">Simulator</span></h1>
+                <p class="header-subtitle">Simulasi Interaktif Data Encryption Standard (DES) - Pelajari Algoritma Enkripsi Step-by-Step</p>
+                <p class="header-description">Visualisasikan setiap tahap enkripsi/dekripsi: Key Schedule, Feistel Rounds, dan S-Box Substitution. Sempurna untuk pelajar, mahasiswa, dan peneliti kriptografi.</p>
             </div>
             <div class="header-badges">
-                <span class="badge">Kriptografi</span>
-                <span class="badge">FIPS 46-3</span>
+                <span class="badge">📚 Edukasi</span>
+                <span class="badge">🔒 FIPS 46-3</span>
+                <span class="badge">⚙️ 16 Rounds</span>
             </div>
         </header>
 
@@ -39,50 +41,55 @@
         <main class="main-content">
             <section class="panel input-panel glass-panel">
                 <div class="panel-header">
-                    <h2>Konfigurasi Enkripsi / Dekripsi</h2>
+                    <h2>⚙️ Konfigurasi Enkripsi / Dekripsi</h2>
+                    <p class="panel-description">Pilih mode operasi dan masukkan kunci serta data Anda untuk mulai simulasi.</p>
                 </div>
                 
                 <div class="input-grid">
                     <!-- Format & Mode Selectors -->
                     <div class="control-group">
-                        <label>Format Input</label>
+                        <label>📄 Format Input</label>
+                        <div class="control-hint">Pilih format untuk key dan data Anda</div>
                         <div class="radio-group" id="formatSelector">
                             <input type="radio" id="formatHex" name="format" value="hex" checked>
-                            <label for="formatHex">Hexadecimal</label>
+                            <label for="formatHex"><span class="radio-icon">■</span> Hexadecimal (16 char)</label>
                             
                             <input type="radio" id="formatBin" name="format" value="binary">
-                            <label for="formatBin">Binary</label>
+                            <label for="formatBin"><span class="radio-icon">■</span> Binary (64 bit)</label>
                         </div>
                     </div>
 
                     <div class="control-group">
-                        <label>Mode Operasi</label>
+                        <label>🔄 Mode Operasi</label>
+                        <div class="control-hint">Enkripsi atau dekripsi data?</div>
                         <div class="radio-group" id="modeSelector">
                             <input type="radio" id="modeEncrypt" name="mode" value="encrypt" checked>
-                            <label for="modeEncrypt">Encrypt</label>
+                            <label for="modeEncrypt"><span class="radio-icon">■</span> Enkripsi (Plaintext → Ciphertext)</label>
                             
                             <input type="radio" id="modeDecrypt" name="mode" value="decrypt">
-                            <label for="modeDecrypt">Decrypt</label>
+                            <label for="modeDecrypt"><span class="radio-icon">■</span> Dekripsi (Ciphertext → Plaintext)</label>
                         </div>
                     </div>
 
                     <!-- Input Fields -->
                     <div class="control-group full-width">
-                        <label for="keyInput">Secret Key (64-bit)</label>
+                        <label for="keyInput">🔑 Secret Key (Kunci Rahasia 64-bit)</label>
+                        <div class="control-hint">Kunci enkripsi yang menghasilkan 16 subkey berbeda untuk setiap round</div>
                         <div class="input-wrapper">
                             <input type="text" id="keyInput" placeholder="Masukkan 16 karakter Hex..." value="133457799BBCDFF1" autocomplete="off" spellcheck="false">
                             <span class="length-indicator" id="keyLength">16/16</span>
                         </div>
-                        <small class="helper-text">Contoh Hex: 133457799BBCDFF1</small>
+                        <small class="helper-text">✓ Contoh: <code>133457799BBCDFF1</code> (64-bit = 8 byte = 16 karakter hex)</small>
                     </div>
 
                     <div class="control-group full-width">
-                        <label for="dataInput">Data (Plaintext/Ciphertext 64-bit)</label>
+                        <label for="dataInput">📝 Data (Plaintext/Ciphertext 64-bit)</label>
+                        <div class="control-hint">Teks atau data yang akan dienkripsi atau didekripsi</div>
                         <div class="input-wrapper">
                             <input type="text" id="dataInput" placeholder="Masukkan 16 karakter Hex..." value="0123456789ABCDEF" autocomplete="off" spellcheck="false">
                             <span class="length-indicator" id="dataLength">16/16</span>
                         </div>
-                        <small class="helper-text">Contoh Hex: 0123456789ABCDEF</small>
+                        <small class="helper-text">✓ Contoh: <code>0123456789ABCDEF</code> (64-bit data block)</small>
                     </div>
                 </div>
 
@@ -91,13 +98,16 @@
                     <button id="btnRun" class="btn btn-primary">
                         <span class="icon">▶</span> Eksekusi Algoritma
                     </button>
-                    <button id="btnRoundTrip" class="btn btn-secondary">
+                    <button id="btnRoundTrip" class="btn btn-secondary" title="Enkripsi → Dekripsi untuk verifikasi">
                         <span class="icon">🔁</span> Round-Trip Test
                     </button>
                     <button id="btnReset" class="btn btn-danger">
                         <span class="icon">⟲</span> Reset
                     </button>
                 </div>
+                
+                <div id="errorMessage" class="error-message hidden"></div>
+            </section>
                 
                 <div id="errorMessage" class="error-message hidden"></div>
             </section>
@@ -108,16 +118,19 @@
                 <!-- Output Akhir -->
                 <div class="panel glass-panel final-output-panel">
                     <div class="panel-header">
-                        <h2>Hasil Akhir</h2>
+                        <h2>✅ Hasil Enkripsi / Dekripsi</h2>
+                        <p class="panel-description">Output dalam format Hexadecimal dan Binary (Klik untuk copy)</p>
                     </div>
                     <div class="output-grid">
                         <div class="output-box">
-                            <h3>Hexadecimal</h3>
+                            <div class="output-label">🔤 Hexadecimal Format</div>
                             <div class="code-block copyable" id="outputHex" title="Klik untuk copy"></div>
+                            <small class="output-hint">16 karakter hex = 64 bit</small>
                         </div>
                         <div class="output-box">
-                            <h3>Binary</h3>
+                            <div class="output-label">📊 Binary Format</div>
                             <div class="code-block copyable" id="outputBin" title="Klik untuk copy"></div>
+                            <small class="output-hint">64 bit = 8 byte</small>
                         </div>
                     </div>
                 </div>
@@ -134,30 +147,94 @@
                         <!-- TAB: Key Schedule -->
                         <div id="tab-keyschedule" class="tab-content active">
                             <div class="explanation-box">
-                                <p>Proses menghasilkan 16 subkey (48-bit) dari kunci utama (64-bit). Melalui PC-1, split C0/D0, left shift, dan PC-2.</p>
+                                <div class="explanation-icon">🔑</div>
+                                <div class="explanation-content">
+                                    <h3>Apa itu Key Schedule?</h3>
+                                    <p><strong>Key Schedule</strong> adalah proses menghasilkan 16 subkey berbeda (masing-masing 48-bit) dari satu kunci utama 64-bit. Setiap round Feistel menggunakan subkey unik ini untuk enkripsi yang lebih kuat dan aman.</p>
+                                    <p style="margin-top: 0.5rem; opacity: 0.9; font-size: 0.9rem;">
+                                        <strong>Proses:</strong> PC-1 Permutation → Split C0/D0 → 16× (Shift + PC-2) = 16 Subkeys
+                                    </p>
+                                </div>
                             </div>
-                            <div class="table-responsive">
-                                <table class="data-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Round</th>
-                                            <th>Shift</th>
-                                            <th>Register C (28-bit)</th>
-                                            <th>Register D (28-bit)</th>
-                                            <th>Subkey K (48-bit)</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="keyScheduleBody">
-                                        <!-- Diisi oleh JavaScript -->
-                                    </tbody>
-                                </table>
+
+                            <!-- TAMBAHAN UI: Initial Key & PC-1 -->
+                            <div class="ks-initial-details">
+                                <div class="ks-detail-card">
+                                    <div class="ks-card-number">1️⃣</div>
+                                    <h4>Kunci Awal (64-bit)</h4>
+                                    <p class="ks-subtext">Kunci asli Anda dalam format binary (8 byte)</p>
+                                    <div class="ks-value code-block" id="ksInitialKeyBin"></div>
+                                </div>
+                                <div class="ks-detail-card">
+                                    <div class="ks-card-number">2️⃣</div>
+                                    <h4>PC-1 Permutation (56-bit)</h4>
+                                    <p class="ks-subtext">Setelah membuang 8 parity bits (posisi 8,16,24,32,40,48,56,64) dan mengacak. Hasil: 56 bit yang siap di-split.</p>
+                                    <div class="ks-value code-block" id="ksPc1Result"></div>
+                                </div>
+                                <div class="ks-detail-card">
+                                    <div class="ks-card-number">3️⃣</div>
+                                    <h4>Split C<sub>0</sub> dan D<sub>0</sub></h4>
+                                    <p class="ks-subtext">56-bit hasil PC-1 dibagi menjadi 2 register 28-bit yang akan di-shift setiap round</p>
+                                    <div class="ks-split-grid">
+                                        <div>
+                                            <div class="ks-label">🟠 C<sub>0</sub> (Kiri)</div>
+                                            <div class="ks-value bit-c code-block" id="ksC0"></div>
+                                            <small class="ks-explanation">28 bit pertama</small>
+                                        </div>
+                                        <div>
+                                            <div class="ks-label">🔵 D<sub>0</sub> (Kanan)</div>
+                                            <div class="ks-value bit-d code-block" id="ksD0"></div>
+                                            <small class="ks-explanation">28 bit terakhir</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <h4 class="ks-rounds-title">4️⃣ Shift dan Permutation per Round (1-16)</h4>
+                            <p class="ks-rounds-description">Setiap round melakukan: Left Circular Shift pada C dan D → Gabung (CnDn) → PC-2 Permutation = Subkey Kn</p>
+                            
+                            <div class="ks-rounds-accordion" id="ksRoundsAccordion">
+                                <!-- Diisi oleh JavaScript untuk setiap round -->
+                            </div>
+                            
+                            <!-- Optional: Summary Table (non-interactive) -->
+                            <div style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--border-glass);">
+                                <h4 style="margin-bottom: 1rem; font-size: 0.9rem; opacity: 0.8;">Summary Table</h4>
+                                <div class="table-responsive">
+                                    <table class="data-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Round</th>
+                                                <th>Shift</th>
+                                                <th>Register C (28-bit)</th>
+                                                <th>Register D (28-bit)</th>
+                                                <th>Subkey K (48-bit)</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="keyScheduleBody">
+                                            <!-- Diisi oleh JavaScript -->
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                         </div>
 
                         <!-- TAB: Feistel Rounds -->
                         <div id="tab-rounds" class="tab-content">
                             <div class="explanation-box">
-                                <p>Detail 16 putaran fungsi Feistel. R<sub>i</sub> = L<sub>i-1</sub> ⊕ f(R<sub>i-1</sub>, K<sub>i</sub>) dan L<sub>i</sub> = R<sub>i-1</sub></p>
+                                <div class="explanation-icon">🔄</div>
+                                <div class="explanation-content">
+                                    <h3>Apa itu Feistel Rounds?</h3>
+                                    <p><strong>Feistel Function</strong> adalah jantung dari DES. Algoritma melakukan 16 putaran (rounds) enkripsi dimana setiap round:</p>
+                                    <ul class="explanation-list">
+                                        <li><strong>Expansion:</strong> Perluas R (32→48 bit) agar sama ukuran dengan subkey K</li>
+                                        <li><strong>XOR:</strong> Campurkan dengan subkey menggunakan XOR</li>
+                                        <li><strong>S-Box:</strong> Substitusi non-linear (48→32 bit)</li>
+                                        <li><strong>Permutation:</strong> Acak bit hasil S-Box</li>
+                                        <li><strong>Swap:</strong> Tukar posisi L dan R untuk round berikutnya</li>
+                                    </ul>
+                                    <p style="margin-top: 0.5rem; opacity: 0.9; font-size: 0.9rem;">Formula: L<sub>i</sub> = R<sub>i-1</sub> | R<sub>i</sub> = L<sub>i-1</sub> ⊕ f(R<sub>i-1</sub>, K<sub>i</sub>)</p>
+                                </div>
                             </div>
                             <div class="accordion" id="roundsAccordion">
                                 <!-- Diisi oleh JavaScript -->
@@ -167,10 +244,21 @@
                         <!-- TAB: S-Box Details -->
                         <div id="tab-sbox" class="tab-content">
                             <div class="explanation-box">
-                                <p>Substitusi non-linear inti dari DES. Memetakan 48-bit (8 blok x 6-bit) menjadi 32-bit (8 blok x 4-bit).</p>
+                                <div class="explanation-icon">📦</div>
+                                <div class="explanation-content">
+                                    <h3>Apa itu S-Box (Substitution Box)?</h3>
+                                    <p><strong>S-Box</strong> adalah tabel substitusi yang memberikan kekuatan non-linear pada DES. DES menggunakan 8 S-Box berbeda yang masing-masing:</p>
+                                    <ul class="explanation-list">
+                                        <li>Input: 6 bit (dari hasil XOR dengan subkey)</li>
+                                        <li>Output: 4 bit (menggunakan tabel lookup 4×16)</li>
+                                        <li>Bit pertama & terakhir menentukan <strong>ROW</strong> (0-3)</li>
+                                        <li>Bit tengah menentukan <strong>COLUMN</strong> (0-15)</li>
+                                    </ul>
+                                    <p style="margin-top: 0.5rem; opacity: 0.9; font-size: 0.9rem;">8 S-Box: 48 bit input → 8×6 bit blocks → S-Box[1-8] → 8×4 bit → 32 bit output</p>
+                                </div>
                             </div>
                             <div class="round-selector">
-                                <label for="sboxRoundSelect">Pilih Round:</label>
+                                <label for="sboxRoundSelect">🎯 Pilih Round untuk melihat S-Box Detail:</label>
                                 <select id="sboxRoundSelect" class="modern-select">
                                     <!-- Options 1-16 -->
                                 </select>

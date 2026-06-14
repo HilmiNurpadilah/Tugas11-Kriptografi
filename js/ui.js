@@ -8,6 +8,10 @@
  * dan s-box).
  */
 
+// ============================================================
+// HELPER FUNCTIONS
+// ============================================================
+
 // Format bit string dengan spasi setiap 4 atau 6 bit agar mudah dibaca
 function formatBits(binaryStr, groupSize = 4) {
     let result = '';
@@ -15,6 +19,17 @@ function formatBits(binaryStr, groupSize = 4) {
         result += binaryStr.substring(i, i + groupSize) + ' ';
     }
     return result.trim();
+}
+
+// Convert binary ke hexadecimal untuk display
+function binaryToHexForDisplay(binaryStr) {
+    let hex = '';
+    for (let i = 0; i < binaryStr.length; i += 4) {
+        const fourBits = binaryStr.substring(i, i + 4);
+        hex += parseInt(fourBits, 2).toString(16).toUpperCase();
+        if (i + 4 < binaryStr.length && (i + 4) % 32 === 0) hex += ' '; // Spasi setiap 8 hex char (32 bit)
+    }
+    return hex;
 }
 
 // Format khusus untuk 56 bit (dibagi 28-bit C dan 28-bit D)
@@ -29,6 +44,12 @@ function formatCiDi(binaryStr) {
 // Render Key Schedule Table
 // ------------------------------------------------------------
 function renderKeySchedule(keyScheduleData) {
+    // Render Detail Initial Key & PC-1
+    document.getElementById('ksInitialKeyBin').textContent = formatBits(keyScheduleData.originalKey, 8);
+    document.getElementById('ksPc1Result').textContent = formatBits(keyScheduleData.pc1Result, 7);
+    document.getElementById('ksC0').textContent = formatBits(keyScheduleData.C0, 4);
+    document.getElementById('ksD0').textContent = formatBits(keyScheduleData.D0, 4);
+
     const tbody = document.getElementById('keyScheduleBody');
     tbody.innerHTML = '';
 
@@ -57,9 +78,99 @@ function renderKeySchedule(keyScheduleData) {
     });
 }
 
-// ------------------------------------------------------------
+// ============================================================
+// Render Key Schedule Detail Accordion
+// ============================================================
+/**
+ * Render accordion detail untuk setiap round key schedule
+ * dengan visualisasi yang lebih terstruktur dan educational.
+ * 
+ * Data yang ditampilkan per round:
+ * - Shift amount
+ * - Cn (Register C setelah shift)
+ * - Dn (Register D setelah shift)  
+ * - PC-2 Result (Subkey Kn 48-bit)
+ * 
+ * @param {object} keyScheduleData - Objek dari generateSubkeys()
+ */
+function renderKeyScheduleDetails(keyScheduleData) {
+    const container = document.getElementById('ksRoundsAccordion');
+    if (!container) return; // Safety check
+    
+    container.innerHTML = '';
+
+    keyScheduleData.rounds.forEach((r, idx) => {
+        const item = document.createElement('div');
+        item.className = 'ks-round-item';
+        
+        // Buka Round 1 dan Round 16 secara default untuk referensi
+        if (idx === 0 || idx === 15) item.classList.add('active');
+
+        // Render header dengan info round dan shift
+        const headerHTML = `
+            <button class="ks-round-header" onclick="toggleKeyScheduleRound(this)">
+                <div class="round-label">
+                    <span class="ks-round-number">R${r.round}</span>
+                    <span class="ks-shift-info">
+                        Shift: <strong>${r.shiftCount}</strong>
+                    </span>
+                </div>
+                <span class="ks-icon">▼</span>
+            </button>
+        `;
+
+        // Render content dengan detail
+        const contentHTML = `
+            <div class="ks-round-content">
+                <div class="ks-round-detail">
+                    <!-- Column 1 -->
+                    <div class="ks-detail-row">
+                        <div class="ks-detail-label">
+                            Shift Amount (positions)
+                        </div>
+                        <div class="ks-detail-value" style="font-weight: 700; font-size: 1rem;">
+                            ${r.shiftCount} bit${r.shiftCount > 1 ? 's' : ''}
+                        </div>
+                    </div>
+
+                    <!-- Column 2: Placeholder untuk format -->
+                    <div></div>
+
+                    <!-- Full width: C Register -->
+                    <div style="grid-column: 1 / 2;">
+                        <div class="ks-detail-label">C<sub>${r.round}</sub> After Shift (28-bit)</div>
+                        <div class="ks-detail-value bit-c">${formatBits(r.C, 4)}</div>
+                    </div>
+
+                    <!-- Full width: D Register -->
+                    <div style="grid-column: 2 / 3;">
+                        <div class="ks-detail-label">D<sub>${r.round}</sub> After Shift (28-bit)</div>
+                        <div class="ks-detail-value bit-d">${formatBits(r.D, 4)}</div>
+                    </div>
+
+                    <!-- Full width: PC-2 Result (Subkey) -->
+                    <div style="grid-column: 1 / -1; margin-top: 0.5rem;">
+                        <div class="ks-detail-label">PC-2 Permutation Result → Subkey K<sub>${r.round}</sub> (48-bit)</div>
+                        <div class="ks-detail-value bit-k">${formatBits(r.subkey, 6)}</div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        item.innerHTML = headerHTML + contentHTML;
+        container.appendChild(item);
+    });
+}
+
+// Fungsi toggle untuk key schedule accordion
+window.toggleKeyScheduleRound = function(btn) {
+    const item = btn.parentElement;
+    item.classList.toggle('active');
+};
+
+// ============================================================
 // Render Feistel Rounds Accordion
-// ------------------------------------------------------------
+// ============================================================
 function renderRounds(roundsData) {
     const container = document.getElementById('roundsAccordion');
     container.innerHTML = '';
